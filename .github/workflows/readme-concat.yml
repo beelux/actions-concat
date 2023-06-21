@@ -1,0 +1,28 @@
+name: Test Action
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  concat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Concatenate README
+        continue-on-error: true
+        run: |
+          cat template/prefix.md > README.md
+          cat template/usage.md >> README.md
+          cat usage/intro.md usage/basic.md usage/pricing.md >> README.md
+          cat template/additional.md additional/*.md >> README.md
+          cat template/suffix.md >> README.md
+
+      - name: Commit concatenated README.md
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git checkout -b demo
+          git commit -m "Actions: automated concatenation"
+          git push --force -u origin demo
